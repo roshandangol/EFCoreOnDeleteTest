@@ -23,14 +23,14 @@ namespace EFCoreOnDeleteTest.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserPolicy>>> GetUserPolicies()
         {
-            return await _context.UserPolicies.ToListAsync();
+            return await _context.Userpolicy.ToListAsync();
         }
 
         // GET: api/UserPolicies/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserPolicy>> GetUserPolicy(int id)
         {
-            var userPolicy = await _context.UserPolicies.FindAsync(id);
+            var userPolicy = await _context.Userpolicy.FindAsync(id);
 
             if (userPolicy == null)
             {
@@ -78,7 +78,7 @@ namespace EFCoreOnDeleteTest.Controllers
         [HttpPost]
         public async Task<ActionResult<UserPolicy>> PostUserPolicy(UserPolicy userPolicy)
         {
-            _context.UserPolicies.Add(userPolicy);
+            _context.Userpolicy.Add(userPolicy);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetUserPolicy", new { id = userPolicy.Id }, userPolicy);
@@ -88,13 +88,13 @@ namespace EFCoreOnDeleteTest.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<UserPolicy>> DeleteUserPolicy(int id)
         {
-            var userPolicy = await _context.UserPolicies.FindAsync(id);
+            var userPolicy = await _context.Userpolicy.FindAsync(id);
             if (userPolicy == null)
             {
                 return NotFound();
             }
 
-            _context.UserPolicies.Remove(userPolicy);
+            _context.Userpolicy.Remove(userPolicy);
             await _context.SaveChangesAsync();
 
             return userPolicy;
@@ -102,7 +102,7 @@ namespace EFCoreOnDeleteTest.Controllers
 
         private bool UserPolicyExists(int id)
         {
-            return _context.UserPolicies.Any(e => e.Id == id);
+            return _context.Userpolicy.Any(e => e.Id == id);
         }
     }
 }

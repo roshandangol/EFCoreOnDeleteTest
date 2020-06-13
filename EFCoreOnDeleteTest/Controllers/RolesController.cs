@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EFCoreOnDeleteTest.Data;
 using EFCoreOnDeleteTest.MOdel;
+using Microsoft.Extensions.Logging;
 
 namespace EFCoreOnDeleteTest.Controllers
 {
@@ -16,15 +17,19 @@ namespace EFCoreOnDeleteTest.Controllers
     {
         private readonly EFCoreOnDeleteTestContext _context;
 
-        public RolesController(EFCoreOnDeleteTestContext context)
+        ILogger<RolesController> _logger;
+
+        public RolesController(EFCoreOnDeleteTestContext context, ILogger<RolesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/Roles
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
         {
+            _logger.LogInformation("Logging at {a}  ", HttpContext.GetMetricsCurrentResourceName());
             return await _context.Roles.ToListAsync();
         }
 
@@ -32,10 +37,13 @@ namespace EFCoreOnDeleteTest.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Role>> GetRole(int id)
         {
+            _logger.LogInformation("Logging at {a}  ", HttpContext.GetMetricsCurrentResourceName());
+
             var role = await _context.Roles.FindAsync(id);
 
             if (role == null)
             {
+                _logger.LogError("Resource Not Found at {a}", HttpContext.GetMetricsCurrentResourceName());
                 return NotFound();
             }
 

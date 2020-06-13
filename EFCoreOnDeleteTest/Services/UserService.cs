@@ -46,11 +46,13 @@ namespace EFCoreOnDeleteTest
             if (role == null)
                 return null;
 
-            //var userPolicy = _context.UserPolicies.where(u => u.Id == user.PolicyId);
+            var userPolicy = _context.Userpolicy.Where(u => u.Id == user.UserPolicyId).FirstOrDefault();
+            if (userPolicy == null)
+                return null;
 
-           
-            ////Set issued at date
-            //DateTime issuedAt = DateTime.UtcNow;
+
+            //Set issued at date
+            DateTime issuedAt = DateTime.UtcNow;
             ////set the time when it expires
             //DateTime expires = DateTime.UtcNow.AddMinutes(userPolicy.SessionAccessDuration);
 
@@ -62,15 +64,13 @@ namespace EFCoreOnDeleteTest
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, role.RoleName)
+                    new Claim(ClaimTypes.Role, "Admin")
                 }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                NotBefore = issuedAt,
+                Expires = DateTime.UtcNow.AddMinutes(userPolicy.SessionAccessDuration),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Issuer = "http://localhost:56538",
-                Audience = "http://localhost:56538",
-                //Expires = expires,
-                //NotBefore = issuedAt,
-                
+                Audience = "http://localhost:56538",                
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             user.Token = tokenHandler.WriteToken(token);
@@ -81,12 +81,13 @@ namespace EFCoreOnDeleteTest
 
         public IEnumerable<User> GetAll()
         {
-            return _users.WithoutPasswords();
+            return _context.Users.WithoutPasswords();
+            //return _users.WithoutPasswords();
         }
 
         public User GetById(int id)
         {
-            var user = _users.FirstOrDefault(x => x.Id == id);
+            var user = _context.Users.FirstOrDefault(x => x.Id == id);
             return user.WithoutPassword();
         }
     }

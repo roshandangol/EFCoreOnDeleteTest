@@ -27,6 +27,7 @@ namespace EFCoreOnDeleteTest.Controllers
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
+            _logger.LogInformation("Logging at {a} and  ",HttpContext.GetMetricsCurrentResourceName());
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
@@ -34,6 +35,8 @@ namespace EFCoreOnDeleteTest.Controllers
                 Summary = Summaries[rng.Next(Summaries.Length)]
             })
             .ToArray();
+            
+            
         }
     }
 }

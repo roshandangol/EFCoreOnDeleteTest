@@ -1,6 +1,7 @@
 ﻿using EFCoreOnDeleteTest.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace EFCoreOnDeleteTest.Controllers
 {
@@ -20,12 +21,20 @@ namespace EFCoreOnDeleteTest.Controllers
         [HttpPost("authenticate")]
         public IActionResult Authenticate([FromBody] AuthenticateModelDto model)
         {
-            var user = _userService.Authenticate(model.Username, model.Password);
+            try
+            {
+                var user = _userService.Authenticate(model.Username, model.Password);
 
-            if (user == null)
-                return BadRequest(new { message = "Username or password is incorrect" });
+                if (user == null)
+                    return BadRequest(new { message = "Username or password is incorrect" });
 
-            return Ok(user);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+
+                return  Unauthorized();
+            }
         }
 
         [Authorize(Roles = "Admin")]

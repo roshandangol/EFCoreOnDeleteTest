@@ -3,12 +3,16 @@ using EFCoreOnDeleteTest.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+
 using System.Text;
 
 namespace EFCoreOnDeleteTest
@@ -26,6 +30,9 @@ namespace EFCoreOnDeleteTest
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
 
             // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
@@ -84,7 +91,7 @@ namespace EFCoreOnDeleteTest
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
             if (env.IsDevelopment())
             {
@@ -113,6 +120,24 @@ namespace EFCoreOnDeleteTest
 
           
             app.UseRouting();
+
+            
+
+            app.Use((context, next) =>
+            {
+                var endpoint = context.GetEndpoint();
+                if (endpoint != null)
+                {
+                    var controllerActionDescriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
+                    if (controllerActionDescriptor != null)
+                    {
+                        var controllerName = controllerActionDescriptor.ControllerName;
+                        logger.LogInformation("initiating api request for {a}",controllerName);
+                    }
+                }
+
+                return next();
+            });
 
             // 2. Enable authentication middleware
             app.UseAuthentication();
